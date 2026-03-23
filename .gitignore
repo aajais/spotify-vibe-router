@@ -1,0 +1,22 @@
+# Secrets / env
+.env
+.env.*
+*.env
+*.env.*
+!.env.example
+
+# Runtime state / logs
+state.json
+*.log
+*.pid
+
+# Python/cache
+__pycache__/
+*.pyc
+
+# W&B local artifacts
+wandb/
+*.wandb
+
+# Nested repo backup folder (from migration)
+.git.nested-backup/
