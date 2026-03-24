@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { VIBES } from './vibes.mjs';
+import { VIBES } from '../src/vibes.mjs';
 
 const state = JSON.parse(fs.readFileSync('state.json', 'utf8'));
 const token = state.token.access_token;
