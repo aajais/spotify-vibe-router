@@ -28,10 +28,16 @@ This agent automatically sorts Spotify liked songs into vibe-based playlists eve
   - **Date**: 2026-03-19
 
 ## File Structure
-- `server.mjs`: Main server implementation
-- `classify.mjs`: Vibe classification algorithm
-- `vibes.mjs`: Vibe definitions and descriptions
-- `state.json`: Persistent state (tokens, playlist mappings, processed tracks)
+- `src/server.mjs` — HTTP server entry point
+- `src/spotify/` — Spotify OAuth, API client, operations
+- `src/classifier/` — vibe classification (keywords, audio, priors)
+- `src/poller.mjs` — poll loop orchestration
+- `src/config.mjs` — configuration and validation
+- `src/state.mjs` — runtime state/cache (tokens, playlist mappings, processed tracks)
+- `src/vibes.mjs` — vibe taxonomy
+- `public/` — dashboard UI (HTML/CSS/JS)
+- `eval/` — classifier evaluation tooling
+- `test/` — test suite
 
 ## Dependencies
 - Node.js built-in modules only (no external dependencies)
@@ -40,7 +46,7 @@ This agent automatically sorts Spotify liked songs into vibe-based playlists eve
 ## Setup Instructions
 1. Create Spotify Developer app with redirect URI: `http://127.0.0.1:8888/callback`
 2. Set environment variable: `SPOTIFY_CLIENT_ID="your_client_id"`
-3. Run: `node server.mjs`
+3. Run: `npm start`
 4. Authenticate at: `http://127.0.0.1:8888/login`
 
 ## Vibe Playlists
@@ -75,14 +81,18 @@ This agent automatically sorts Spotify liked songs into vibe-based playlists eve
 
 ### Start the service
 ```bash
-cd /srv/openclaw/.openclaw/workspace/spotify-vibe-router-lite
-SPOTIFY_CLIENT_ID="your_client_id" node server.mjs
+npm start
 ```
 
 ### Start with custom polling interval (e.g., 2 minutes)
 ```bash
-cd /srv/openclaw/.openclaw/workspace/spotify-vibe-router-lite
-POLL_MINUTES=2 SPOTIFY_CLIENT_ID="your_client_id" node server.mjs
+POLL_MINUTES=2 SPOTIFY_CLIENT_ID="your_client_id" npm start
+```
+
+### Run tests
+```bash
+npm test
+node --test test/classifier.test.mjs
 ```
 
 ### Check if service is running
@@ -92,17 +102,17 @@ ps aux | grep server.mjs
 
 ### Stop the service
 ```bash
-pkill -f "server.mjs"
-```
-
-### View logs
-```bash
-tail -f /srv/openclaw/.openclaw/workspace/spotify-vibe-router-lite/server.log
+pkill -f "src/server.mjs"
 ```
 
 ### Run classification once manually
 ```bash
 curl -s http://127.0.0.1:8888/run-once | jq .
+```
+
+### Health check
+```bash
+curl -s http://127.0.0.1:8888/healthz
 ```
 
 ### Test playlist add capability
@@ -117,13 +127,12 @@ curl -s http://127.0.0.1:8888/recent-tracks | jq .
 
 ### Check current state
 ```bash
-cat /srv/openclaw/.openclaw/workspace/spotify-vibe-router-lite/state.json | jq .
+cat state.json | jq .
 ```
 
 ### Restart the service
 ```bash
-cd /srv/openclaw/.openclaw/workspace/spotify-vibe-router-lite
-pkill -f "server.mjs" && sleep 3 && SPOTIFY_CLIENT_ID="your_client_id" node server.mjs
+pkill -f "src/server.mjs" && sleep 3 && npm start
 ```
 
 ## Troubleshooting
