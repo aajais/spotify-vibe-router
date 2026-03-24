@@ -1,0 +1,15 @@
+{
+  "name": "spotify-vibe-router",
+  "version": "1.0.0",
+  "description": "Automated Spotify listener that routes liked songs into vibe-matching playlists",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node --test test/",
+    "test:eval": "node eval/evaluate_dataset.mjs eval/training_data.json"
+  },
+  "private": true
+}
