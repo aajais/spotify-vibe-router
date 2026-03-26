@@ -18,7 +18,7 @@ EXPERIMENTS = [
 
 def run_eval(mode: str, threshold: float):
     out = subprocess.check_output(
-        ["node", "evaluate_dataset.mjs", DATASET, mode, str(threshold)],
+        ["node", "eval/evaluate_dataset.mjs", DATASET, mode, str(threshold)],
         text=True,
     )
     return json.loads(out)

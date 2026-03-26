@@ -6,7 +6,7 @@ export const VIBES = [
 
   { key: "monochrome_martini", name: "Monochrome Martini", description: "sleek, understated swagger; cool tempo" },
   { key: "velvet_rope", name: "Velvet Rope Behavior", description: "nightlife confidence; flirt/edge/pregame-to-club" },
-  { key: "gallery_opening", name: "Gallery Opening (I Don’t Know Anyone)", description: "art-cool; tasteful weird; aloof curiosity" },
+  { key: "gallery_opening", name: "Gallery Opening (I Don't Know Anyone)", description: "art-cool; tasteful weird; aloof curiosity" },
 
   { key: "left_of_groove", name: "Left of the Groove", description: "off-kilter rhythms/structure; idiosyncratic" },
   { key: "tastefully_unhinged", name: "Tastefully Unhinged", description: "maximal/chaotic/bold choices; still listenable" },

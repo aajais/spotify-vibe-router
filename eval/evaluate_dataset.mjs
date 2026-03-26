@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { classifyWithDiagnostics } from "./adjusted_smart_classify.mjs";
+import { classifyWithDiagnostics } from "../src/classifier/index.mjs";
 
 const datasetPath = process.argv[2] ?? "training_data.json";
 const mode = process.argv[3] ?? "hybrid";

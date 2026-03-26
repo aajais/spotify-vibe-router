@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="theme-color" content="#06331D"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Vibe Router"/>
+  <link rel="manifest" href="/manifest.webmanifest"/>
+  <link rel="apple-touch-icon" href="/icon.svg"/>
+  <link rel="stylesheet" href="/style.css"/>
+  <title>Spotify Vibe Router</title>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1 class="title">Spotify Vibe Router</h1>
+      <p class="sub">A single-pane control app for automated Spotify vibe routing.</p>
+      <p class="sub" style="margin-top:6px">Status: <b id="authStatus" style="color:#f59e0b">loading...</b></p>
+      <p id="reauthMsg" class="sub" style="margin-top:6px;color:#f59e0b;display:none">Session expired/revoked. Please reconnect Spotify.</p>
+      <div class="btns">
+        <a id="loginBtn" class="btn primary" href="/login" style="display:none">Connect Spotify</a>
+        <a class="btn" id="btnRunOnce" href="#" onclick="runOnce();return false;">Run Once</a>
+        <a class="btn" id="btnDiagnose" href="#" onclick="diagnose();return false;">Audio Diagnose</a>
+        <a class="btn" id="btnCalibrate" href="#" onclick="calibrate();return false;">Calibrate Confidence</a>
+      </div>
+      <div id="toast" class="sub" style="margin-top:8px"></div>
+    </section>
+
+    <section class="main-layout">
+      <div class="card" style="position:sticky;top:14px;height:max-content">
+        <h3 class="h">Navigation</h3>
+        <div class="sub" style="margin-bottom:10px">Single-page control surface</div>
+        <div class="btns mobile-tabs" style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:0">
+          <a class="btn" href="#" data-tab="overview" onclick="showTab('overview');return false;">Overview</a>
+          <a class="btn" href="#" data-tab="analytics" onclick="showTab('analytics');return false;">Rewind Analytics</a>
+          <a class="btn" href="#" data-tab="logs" onclick="showTab('logs');return false;">Server Logs</a>
+          <a class="btn" href="#" data-tab="system" onclick="showTab('system');return false;">System Info</a>
+        </div>
+      </div>
+
+      <div class="main-content" style="display:grid;gap:14px">
+        <div id="tab-overview" class="tabpanel card">
+          <div class="card kpi"><h3 class="h">System KPI</h3><div id="kpis"></div></div>
+          <div class="grid">
+            <div class="card left"><h3 class="h">Playlist Distribution (All)</h3><div id="bars"></div></div>
+            <div class="card right"><h3 class="h">Quality Snapshot</h3><pre id="quality"></pre></div>
+            <div class="card left"><h3 class="h">Confidence Distribution</h3><div id="confDistOverview"></div></div>
+            <div class="card right"><h3 class="h">Margin Distribution</h3><div id="marginDistOverview"></div></div>
+            <div class="card full"><h3 class="h">Low Confidence Queue</h3><div id="queue"></div></div>
+            <div class="card full"><h3 class="h">Recent Poll Trend</h3><pre id="polls"></pre></div>
+          </div>
+        </div>
+
+        <div id="tab-analytics" class="tabpanel card" style="display:none">
+          <h3 class="h">Spotify Rewind Style</h3>
+          <div id="analyticsLoading" class="tiny" style="display:none;margin-bottom:8px;color:#8DC4AA">Loading analytics&hellip;</div>
+          <div class="card" style="margin-bottom:10px">
+            <div class="h">API Usage Mode</div>
+            <div class="tiny" style="margin-top:6px">Low API mode avoids automatic deep refreshes (rewind/compare). Use manual buttons.</div>
+            <div class="btns" style="margin-top:8px">
+              <a class="btn" href="#" id="btnToggleLowApi" onclick="toggleLowApiMode();return false;">Low API: OFF</a>
+              <a class="btn" href="#" onclick="refreshAnalytics();return false;">Refresh Rewind</a>
+              <a class="btn" href="#" onclick="refreshCompare();return false;">Refresh Compare</a>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom:10px">
+            <div class="h">Compare Periods</div>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px">
+              <div>
+                <div class="tiny">Period A</div>
+                <select id="cmpPresetA" class="input" style="width:100%;margin-top:4px">
+                  <option value="last90">Last 90 days</option>
+                  <option value="thisYear">This year</option>
+                  <option value="lastYear">Last year</option>
+                  <option value="prev90">Previous 90 days</option>
+                </select>
+              </div>
+              <div>
+                <div class="tiny">Period B</div>
+                <select id="cmpPresetB" class="input" style="width:100%;margin-top:4px">
+                  <option value="prev90">Previous 90 days</option>
+                  <option value="last90">Last 90 days</option>
+                  <option value="thisYear">This year</option>
+                  <option value="lastYear">Last year</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin-top:8px">
+              <div><div class="tiny">A from</div><input id="cmpFromA" type="date" class="input"/></div>
+              <div><div class="tiny">A to</div><input id="cmpToA" type="date" class="input"/></div>
+              <div><div class="tiny">B from</div><input id="cmpFromB" type="date" class="input"/></div>
+              <div><div class="tiny">B to</div><input id="cmpToB" type="date" class="input"/></div>
+              <a class="btn" href="#" onclick="refreshCompare();return false;">Run Compare</a>
+              <a class="btn" href="#" onclick="exportCompareCsv();return false;">Export CSV</a>
+            </div>
+          </div>
+          <div class="grid">
+            <div class="card left"><h3 class="h">Songs Added by Year</h3><div id="rewindYear" class="chart"></div></div>
+            <div class="card right"><h3 class="h">Current Year Monthly Pattern</h3><div id="rewindMonth" class="chart"></div></div>
+            <div class="card left"><h3 class="h">Top Artists (latest year)</h3><div id="rewindArtists" class="chart bars"></div></div>
+            <div class="card right"><h3 class="h">Top Tracks (latest year)</h3><div id="rewindTracks" class="chart bars"></div></div>
+            <div class="card left"><h3 class="h">Journey Milestones</h3><div id="rewindJourney" class="chart"></div></div>
+            <div class="card right"><h3 class="h">Deep Pattern Metrics</h3><div id="rewindPatterns" class="chart"></div></div>
+            <div class="card full"><h3 class="h">Vibe Drift Timeline (last 12 months)</h3><div id="rewindVibeDrift" class="chart"></div></div>
+            <div class="card full"><h3 class="h">Vibe Drift Drilldown</h3><div class="btns" style="margin-top:0;margin-bottom:8px"><a class="btn" href="#" onclick="exportVibeDrillCsv();return false;">Export Vibe CSV</a></div><div id="rewindVibeDrill" class="chart"></div></div>
+            <div class="card full"><h3 class="h">Year Audio Profile (latest year)</h3><div id="rewindAudio" class="chart"></div></div>
+            <div class="card full"><h3 class="h">Compare Snapshot (A vs B)</h3><div id="rewindCompare" class="chart"></div></div>
+            <div class="card full"><h3 class="h">Compare Drilldown</h3><div id="rewindDrill" class="chart"></div></div>
+            <div class="card full"><h3 class="h">Behavior Summary</h3><div id="rewindDetail" class="chart"></div></div>
+          </div>
+        </div>
+
+        <div id="tab-logs" class="tabpanel card" style="display:none">
+          <h3 class="h">Server Logs</h3>
+          <div class="btns" style="margin-top:0;margin-bottom:8px">
+            <a class="btn" href="#" id="btnClearLogs" onclick="clearLogs();return false;">Clear logs</a>
+          </div>
+          <pre id="liveLogs">Loading...</pre>
+        </div>
+
+        <div id="tab-system" class="tabpanel card" style="display:none">
+          <h3 class="h">System Info</h3>
+          <pre id="systemInfo">Loading...</pre>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>

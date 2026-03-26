@@ -5,8 +5,8 @@ An automated Spotify listener that watches your **Liked Songs** and routes each 
 ## What it does
 
 - Polls your Spotify Liked Songs on an interval
-- Classifies each song into one of the project’s vibe buckets
-- Creates playlists if they don’t exist
+- Classifies each song into one of the project's vibe buckets
+- Creates playlists if they don't exist
 - Adds tracks to the matched vibe playlist
 - Keeps lightweight state to avoid reprocessing duplicates
 
@@ -53,7 +53,9 @@ PORT=8888
 ### 3) Start service
 
 ```bash
-node server.mjs
+npm start
+# or
+node src/server.mjs
 ```
 
 Then open:
@@ -62,9 +64,19 @@ Then open:
 
 Complete auth once to grant Spotify scopes.
 
+## Docker
+
+```bash
+docker build -t spotify-vibe-router .
+docker run -e SPOTIFY_CLIENT_ID=your_id -p 8888:8888 spotify-vibe-router
+```
+
 ## Useful endpoints / checks
 
 ```bash
+# Health check
+curl -s http://127.0.0.1:8888/healthz
+
 # Trigger one routing pass
 curl -s http://127.0.0.1:8888/run-once | jq .
 
@@ -77,18 +89,21 @@ curl -s http://127.0.0.1:8888/test-playlist-add | jq .
 
 ## Files to know
 
-- `server.mjs` — main service loop + Spotify API integration
-- `classify.mjs` / `smart_classify.mjs` — vibe classification logic
-- `vibes.mjs` — vibe taxonomy
-- `state.json` — runtime state/cache (ignored in git)
+- `src/server.mjs` — HTTP server entry point
+- `src/spotify/` — Spotify OAuth, API client, operations
+- `src/classifier/` — vibe classification (keywords, audio, priors)
+- `src/poller.mjs` — poll loop orchestration
+- `src/config.mjs` — configuration and validation
+- `public/` — dashboard UI (HTML/CSS/JS)
+- `eval/` — classifier evaluation tooling
 
 ## Optional: experiment/eval tooling
 
 The repo includes classifier evaluation and W&B utilities:
 
-- `evaluate_dataset.mjs`
-- `run_wandb_experiments.py`
-- `create_ablation_report.py`
+- `eval/evaluate_dataset.mjs`
+- `eval/run_wandb_experiments.py`
+- `eval/create_ablation_report.py`
 
 ## Security / privacy notes
 
